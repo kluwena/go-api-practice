@@ -1,0 +1,13 @@
+version: '3'
+
+networks: 
+  backend:
+    driver: bridge
+
+services:
+  db:
+    image: postgres:11-alpine
+    ports: 
+      - 5433:5432
+    networks: 
+      - backend
