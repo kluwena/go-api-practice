@@ -1,11 +1,12 @@
 package http
 
 import (
-	"github.com/go-chi/chi"
 	"encoding/json"
-	// "log"
-	// "net/http"
-	// "context"
+	"log"
+	"net/http"
+
+	"github.com/go-chi/chi"
+
 	"github.com/kluwena/go-api-practice/internal/order"
 )
 
@@ -16,13 +17,27 @@ type Server struct {
 	orderService order.ServiceInterface
 }
 
+func (s *Server) buildRoutes() {
+	s.router.Post("/orders", func(w http.ResponseWriter, r *http.Request) {
+		var createOrderParamsRequest order.CreateOrderParamsRequest
+		if err := json.NewDecoder(r.Body).Decode(&createOrderParamsRequest); err != nil {
+			w.Write([]byte("internal server error"))
+			return
+		}
+
+		_, err := s.orderService.CreateOrder(r.Context(), &createOrderParamsRequest)
+		if err != nil {
+			log.Println(err)
+		}
+	})
+}
 
 // NewServer create a new order http server
 func NewServer(
-	orderService order.serviceInterface,
+	orderService order.ServiceInterface,
 ) *Server {
-	s:= &Server{
-		router: chi.NewRouter(),
+	s := &Server{
+		router:       chi.NewRouter(),
 		orderService: orderService,
 	}
 	s.buildRoutes()
@@ -30,6 +45,6 @@ func NewServer(
 }
 
 // ServeHTTP serves the http requests
-func (s *Server) serveHTTP (w http.ResponseWriter r *http.Request) {
-	s.router.serveHTTP(w, r)
+func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	s.router.ServeHTTP(w, r)
 }
