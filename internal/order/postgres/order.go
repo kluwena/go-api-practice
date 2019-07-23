@@ -8,24 +8,23 @@ import (
 	"github.com/kluwena/go-api-practice/internal/order"
 )
 
-
-
 type OrderRepository struct {
 	queryer data.Queryer
 }
 
+func (r *OrderRepository) Insert(ctx context.Context, order *order.Order) error {
 
-func (r *OrderRepository) Insert (ctx context.Context, order *order.Order) error {
-	
-	statement, err := db.PreparedNamed(`INSERT INTO "order"("transaction_time") VALUES (:transaction_time)`)
+	db := data.TransactionFromContext(ctx, r.queryer)
+
+	statement, err := db.PrepareNamed(`INSERT INTO "order"("transaction_time") VALUES (:transaction_time)`)
 	if err != nil {
 		return err
 	}
-	
-	res, err := statement.Exec(map[string]interface{}){
-		"transaction_time": order
-	}
-	
+
+	res, err := statement.Exec(map[string]interface{}{
+		"transaction_time": order.TransactionTime,
+	})
+
 	if err != nil {
 		return err
 	}
@@ -35,7 +34,7 @@ func (r *OrderRepository) Insert (ctx context.Context, order *order.Order) error
 	return nil
 }
 
-func newOrderRepository(
+func NewOrderRepository(
 	queryer data.Queryer,
 ) *OrderRepository {
 	return &OrderRepository{
