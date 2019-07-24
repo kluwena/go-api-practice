@@ -2,7 +2,6 @@ package order
 
 import (
 	"context"
-	"log"
 	"time"
 )
 
@@ -66,8 +65,6 @@ func (s *Service) CreateOrder(ctx context.Context, request *CreateOrderParamsReq
 
 // ListOrders lists all orders
 func (s *Service) ListOrders(ctx context.Context, params *ListOrdersParams) ([]*Order, int, error) {
-	log.Println("list orders executed")
-
 	// get orders in array
 	orders := []*Order{}
 	orders, err := s.orderRepository.FindAll(ctx, params)
