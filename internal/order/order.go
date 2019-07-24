@@ -11,22 +11,20 @@ type Order struct {
 	TransactionTime time.Time
 }
 
-// CreateOrderParamsRequest request for Order Request
-type CreateOrderParamsRequest struct {
-	Title           string    `json: "title"`
+// CreateOrderParams request for Order Request
+type CreateOrderParams struct {
 	TransactionTime time.Time `json: "transactionTime"`
 }
 
 // ListOrdersParams is params for list orders
 type ListOrdersParams struct {
-	TimeNow         *time.Time
 	TransactionTime string
 }
 
 // ServiceInterface specifies the interface of order service.
 type ServiceInterface interface {
-	CreateOrder(ctx context.Context, params *CreateOrderParamsRequest) (*Order, error)
-	ListOrders(ctx context.Context, params *ListOrdersParams) ([]*Order, error)
+	CreateOrder(ctx context.Context, params *CreateOrderParams) (*Order, error)
+	ListOrders(ctx context.Context, params *ListOrdersParams) ([]*Order, int, error)
 }
 
 // Repository represents the interface for order entity
@@ -51,9 +49,9 @@ func NewService(
 }
 
 // CreateOrder creates an order
-func (s *Service) CreateOrder(ctx context.Context, request *CreateOrderParamsRequest) (*Order, error) {
+func (s *Service) CreateOrder(ctx context.Context, params *CreateOrderParams) (*Order, error) {
 	order := &Order{
-		TransactionTime: request.TransactionTime,
+		TransactionTime: params.TransactionTime,
 	}
 	err := s.orderRepository.Insert(ctx, order)
 	if err != nil {
