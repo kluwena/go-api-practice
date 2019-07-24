@@ -19,7 +19,15 @@ func main() {
 	if err != nil {
 		log.Fatalln("error connection db:", err)
 	}
-	orderService := order.NewService(orderpg.NewOrderRepository(db))
+
+	orderRepository := orderpg.NewOrderRepository(
+		db,
+	)
+
+	orderService := order.NewService(
+		orderRepository,
+	)
+
 	s := &http.Server{
 		Addr: ":8080",
 		Handler: internalhttp.NewServer(
