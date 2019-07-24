@@ -2,6 +2,7 @@ package order
 
 import (
 	"context"
+	"log"
 	"time"
 )
 
@@ -11,22 +12,29 @@ type Order struct {
 	TransactionTime time.Time
 }
 
-type (
-	// CreateOrderParamsRequest request for Order Request
-	CreateOrderParamsRequest struct {
-		Title           string    `json: "title"`
-		TransactionTime time.Time `json: "transactionTime"`
-	}
-)
+// CreateOrderParamsRequest request for Order Request
+type CreateOrderParamsRequest struct {
+	Title           string    `json: "title"`
+	TransactionTime time.Time `json: "transactionTime"`
+}
+
+// ListOrdersParams is params for list orders
+type ListOrdersParams struct {
+	TimeNow         *time.Time
+	TransactionTime string
+}
 
 // ServiceInterface specifies the interface of order service.
 type ServiceInterface interface {
 	CreateOrder(ctx context.Context, params *CreateOrderParamsRequest) (*Order, error)
+	ListOrders(ctx context.Context, params *ListOrdersParams) ([]*Order, error)
 }
 
 // Repository represents the interface for order entity
 type Repository interface {
 	Insert(ctx context.Context, order *Order) error
+	FindAll(ctx context.Context, params *ListOrdersParams) ([]*Order, error)
+	CountAll(ctx context.Context, params *ListOrdersParams) (int, error)
 }
 
 // Service represents the implementation details of order service interface
@@ -54,4 +62,24 @@ func (s *Service) CreateOrder(ctx context.Context, request *CreateOrderParamsReq
 	}
 
 	return order, nil
+}
+
+// ListOrders lists all orders
+func (s *Service) ListOrders(ctx context.Context, params *ListOrdersParams) ([]*Order, int, error) {
+	log.Println("list orders executed")
+
+	// get orders in array
+	orders := []*Order{}
+	orders, err := s.orderRepository.FindAll(ctx, params)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	count, err := s.orderRepository.CountAll(ctx, params)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return orders, count, nil
+
 }
