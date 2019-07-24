@@ -1,8 +1,8 @@
 package order
 
 import (
-	"time"
 	"context"
+	"time"
 )
 
 // Order represent the order entity
@@ -19,21 +19,20 @@ type (
 	}
 )
 
+// ServiceInterface specifies the interface of order service.
 type ServiceInterface interface {
 	CreateOrder(ctx context.Context, params *CreateOrderParamsRequest) (*Order, error)
 }
 
 // Repository represents the interface for order entity
-type	Repository interface {
-	Insert(ctx context.Context , order *Order) (error)
+type Repository interface {
+	Insert(ctx context.Context, order *Order) error
 }
 
 // Service represents the implementation details of order service interface
-type	Service struct {
+type Service struct {
 	orderRepository Repository
 }
-
-
 
 // NewService creates a new service
 func NewService(
@@ -44,6 +43,7 @@ func NewService(
 	}
 }
 
+// CreateOrder creates an order
 func (s *Service) CreateOrder(ctx context.Context, request *CreateOrderParamsRequest) (*Order, error) {
 	order := &Order{
 		TransactionTime: request.TransactionTime,
