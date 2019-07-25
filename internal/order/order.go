@@ -70,11 +70,11 @@ func (s *Service) ListOrders(ctx context.Context, params *ListOrdersParams) ([]*
 		return nil, 0, err
 	}
 
-	// count, err := s.orderRepository.CountAll(ctx, params)
-	// if err != nil {
-	// 	return nil, 0, err
-	// }
+	count, err := s.orderRepository.CountAll(ctx, params)
+	if err != nil {
+		return nil, 0, err
+	}
 
-	return orders, 0, nil
+	return orders, count, nil
 
 }

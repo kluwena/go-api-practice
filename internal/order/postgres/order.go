@@ -49,14 +49,28 @@ func (r *OrderRepository) Insert(ctx context.Context, order *order.Order) error 
 }
 
 // CountAll retrieves the order count
-func (r *OrderRepository) CountAll(ctx context.Context, order *order.ListOrdersParams) (int, error) {
-	return 0, nil
+func (r *OrderRepository) CountAll(ctx context.Context, params *order.ListOrdersParams) (int, error) {
+
+	query := `select count(*) from "order"`
+	db := data.TransactionFromContext(ctx, r.queryer)
+
+	statement, err := db.PrepareNamed(query)
+	if err != nil {
+		return 0, err
+	}
+
+	var count int
+	if err := statement.Get(&count, map[string]interface{}{}); err != nil {
+		return 0, err
+	}
+
+	return count, nil
 }
 
 // FindAll retrieves the order history
 func (r *OrderRepository) FindAll(ctx context.Context, params *order.ListOrdersParams) ([]*order.Order, error) {
 
-	query := `select * from "order" limit 10 offset 0`
+	query := `select * from "order"`
 	db := data.TransactionFromContext(ctx, r.queryer)
 
 	statement, err := db.PrepareNamed(query)
