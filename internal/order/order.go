@@ -7,13 +7,13 @@ import (
 
 // Order represent the order entity
 type Order struct {
-	ID              int
-	TransactionTime time.Time
+	ID              int       `db:"id"`
+	TransactionTime time.Time `db:"transaction_time"`
 }
 
 // CreateOrderParams request for Order Request
 type CreateOrderParams struct {
-	TransactionTime time.Time `json: "transactionTime"`
+	TransactionTime time.Time `json:"transactionTime"`
 }
 
 // ListOrdersParams is params for list orders
@@ -64,17 +64,17 @@ func (s *Service) CreateOrder(ctx context.Context, params *CreateOrderParams) (*
 // ListOrders lists all orders
 func (s *Service) ListOrders(ctx context.Context, params *ListOrdersParams) ([]*Order, int, error) {
 	// get orders in array
-	orders := []*Order{}
+	// orders := []*Order{}
 	orders, err := s.orderRepository.FindAll(ctx, params)
 	if err != nil {
 		return nil, 0, err
 	}
 
-	count, err := s.orderRepository.CountAll(ctx, params)
-	if err != nil {
-		return nil, 0, err
-	}
+	// count, err := s.orderRepository.CountAll(ctx, params)
+	// if err != nil {
+	// 	return nil, 0, err
+	// }
 
-	return orders, count, nil
+	return orders, 0, nil
 
 }

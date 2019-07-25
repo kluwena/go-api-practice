@@ -17,21 +17,6 @@ type Server struct {
 	orderService order.ServiceInterface
 }
 
-func (s *Server) buildRoutes() {
-	s.router.Post("/orders", func(w http.ResponseWriter, r *http.Request) {
-		var createOrderParamsRequest order.CreateOrderParamsRequest
-		if err := json.NewDecoder(r.Body).Decode(&createOrderParamsRequest); err != nil {
-			w.Write([]byte("internal server error"))
-			return
-		}
-
-		_, err := s.orderService.CreateOrder(r.Context(), &createOrderParamsRequest)
-		if err != nil {
-			log.Println(err)
-		}
-	})
-}
-
 // NewServer create a new order http server
 func NewServer(
 	orderService order.ServiceInterface,
@@ -42,6 +27,33 @@ func NewServer(
 	}
 	s.buildRoutes()
 	return s
+}
+
+func (s *Server) buildRoutes() {
+	s.router.Post("/orders", func(w http.ResponseWriter, r *http.Request) {
+		var createOrderParams order.CreateOrderParams
+		if err := json.NewDecoder(r.Body).Decode(&createOrderParams); err != nil {
+			w.Write([]byte("internal server error"))
+			return
+		}
+
+		_, err := s.orderService.CreateOrder(r.Context(), &createOrderParams)
+		if err != nil {
+			log.Println(err)
+		}
+	})
+
+	s.router.Get("/orders", func(w http.ResponseWriter, r *http.Request) {
+		var listOrderParams order.ListOrdersParams
+		orders, _, err := s.orderService.ListOrders(r.Context(), &listOrderParams)
+		if err != nil {
+			log.Println(err)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(orders)
+
+	})
+
 }
 
 // ServeHTTP serves the http requests
