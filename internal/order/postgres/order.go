@@ -2,6 +2,7 @@ package posgres
 
 import (
 	"context"
+	"fmt"
 	"log"
 
 	"github.com/kluwena/go-api-practice/internal/data"
@@ -81,6 +82,26 @@ func (r *OrderRepository) FindAll(ctx context.Context, params *order.ListOrdersP
 	res := []*order.Order{}
 
 	if err := statement.Select(&res, map[string]interface{}{}); err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
+// FindByID retrieves the order by ID
+func (r *OrderRepository) FindByID(ctx context.Context, ID int) (*order.Order, error) {
+
+	query := fmt.Sprintf(`select * from "order" where id = %v`, ID)
+	db := data.TransactionFromContext(ctx, r.queryer)
+
+	statement, err := db.PrepareNamed(query)
+	if err != nil {
+		return nil, err
+	}
+
+	res := &order.Order{}
+
+	if err := statement.Get(res, map[string]interface{}{}); err != nil {
 		return nil, err
 	}
 

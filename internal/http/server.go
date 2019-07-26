@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/go-chi/chi"
 
@@ -30,6 +31,7 @@ func NewServer(
 }
 
 func (s *Server) buildRoutes() {
+	// POST request to create order
 	s.router.Post("/orders", func(w http.ResponseWriter, r *http.Request) {
 		var createOrderParams order.CreateOrderParams
 		if err := json.NewDecoder(r.Body).Decode(&createOrderParams); err != nil {
@@ -43,6 +45,7 @@ func (s *Server) buildRoutes() {
 		}
 	})
 
+	// GET request to retrieve orders
 	s.router.Get("/orders", func(w http.ResponseWriter, r *http.Request) {
 		var listOrderParams order.ListOrdersParams
 		orders, _, err := s.orderService.ListOrders(r.Context(), &listOrderParams)
@@ -51,7 +54,18 @@ func (s *Server) buildRoutes() {
 		}
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(orders)
+	})
 
+	// GET request to retrieve orders by ID
+	s.router.Get("/orders/{id}", func(w http.ResponseWriter, r *http.Request) {
+		orderID, _ := strconv.Atoi(chi.URLParam(r, "id"))
+		order, err := s.orderService.GetOrder(r.Context(), orderID)
+		if err != nil {
+			log.Println(err)
+		}
+		log.Println(`server.go %s`, order)
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(order)
 	})
 
 }

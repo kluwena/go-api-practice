@@ -25,12 +25,14 @@ type ListOrdersParams struct {
 type ServiceInterface interface {
 	CreateOrder(ctx context.Context, params *CreateOrderParams) (*Order, error)
 	ListOrders(ctx context.Context, params *ListOrdersParams) ([]*Order, int, error)
+	GetOrder(ctx context.Context, id int) (*Order, error)
 }
 
 // Repository represents the interface for order entity
 type Repository interface {
 	Insert(ctx context.Context, order *Order) error
 	FindAll(ctx context.Context, params *ListOrdersParams) ([]*Order, error)
+	FindByID(ctx context.Context, id int) (*Order, error)
 	CountAll(ctx context.Context, params *ListOrdersParams) (int, error)
 }
 
@@ -77,4 +79,13 @@ func (s *Service) ListOrders(ctx context.Context, params *ListOrdersParams) ([]*
 
 	return orders, count, nil
 
+}
+
+// GetOrder retrieves order by ID
+func (s *Service) GetOrder(ctx context.Context, id int) (*Order, error) {
+	order, err := s.orderRepository.FindByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	return order, nil
 }
